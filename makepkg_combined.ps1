@@ -20,6 +20,7 @@ Copy-Item -Path ("functions.tph") -Destination $modPath
 Copy-Item -Path ($tp2Name + ".tp2") -Destination $modPath 
 Copy-Item -Path "../weidu.exe" -Destination ($basePath + "/" + $exePath)
 Copy-Item -Path "Release Notes.md" -Destination ($basePath + "/Release Notes.md")
+Copy-Item -Path "Discord Server.url" -Destination ($basePath + "/Discord Server.url")
 #Remove-Item -LiteralPath ($testDir + $tp2Name) -Force -Recurse
 
 #Copy-Item -Path $modPath -Destination $testDir -Recurse
