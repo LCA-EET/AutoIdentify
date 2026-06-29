@@ -21,12 +21,13 @@ foreach($folder in $folders){
 	Copy-Item -Path $folder -Destination ($modPath + "/" + $folder) -Recurse
 }
 
-& $PSScriptRoot/d_compactor.ps1 -dPath $modPath
-
 Copy-Item -Path ("functions.tph") -Destination $modPath 
 Copy-Item -Path ($tp2Name + ".tp2") -Destination $modPath 
 Copy-Item -Path "Release Notes.md" -Destination ($modPath  + "/Release Notes.md")
 Copy-Item -Path "Discord Server.url" -Destination ($modPath  + "/Discord Server.url")
+Copy-Item -Path "PayPal.url" -Destination $modPath
+Copy-Item -Path "Venmo.url" -Destination $modPath
+Copy-Item -Path "readme.md" -Destination $modPath
 
 for ($i = 0; $i -lt $weiduApps.Length; $i++) {
 	if($i -gt 0){
