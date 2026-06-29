@@ -1,47 +1,55 @@
-$basePath = "AutoIdentify_EE"
+$weiduApps		= @("weidu.exe", "weidu_linux")
+$weiduExts		= @(".exe", "")
+$weiduArchives 	= @("_win", "_linux")
+
+$basePath = "AutoIdentify"
 $tp2Name = "AutoIdentify"
 $modPath = $basePath + "/" + $tp2Name 
 $archive = $basePath + ".zip"
-$exePath = "setup-" + $tp2Name + ".exe"
+$exePath = "setup-" + $tp2Name
 $folders = @(
 'tra'
 )
 
 Remove-Item -LiteralPath $modPath -Force -Recurse
 
+foreach($weiduArchive in $weiduArchives){
+	Remove-Item -LiteralPath ($basePath + $weiduArchive + ".zip") -Force
+}
+
 foreach($folder in $folders){
 	Copy-Item -Path $folder -Destination ($modPath + "/" + $folder) -Recurse
-	
 }
 
 & $PSScriptRoot/d_compactor.ps1 -dPath $modPath
 
 Copy-Item -Path ("functions.tph") -Destination $modPath 
 Copy-Item -Path ($tp2Name + ".tp2") -Destination $modPath 
-Copy-Item -Path "../weidu.exe" -Destination ($basePath + "/" + $exePath)
-Copy-Item -Path "Release Notes.md" -Destination ($basePath + "/Release Notes.md")
-Copy-Item -Path "Discord Server.url" -Destination ($basePath + "/Discord Server.url")
-#Remove-Item -LiteralPath ($testDir + $tp2Name) -Force -Recurse
+Copy-Item -Path "Release Notes.md" -Destination ($modPath  + "/Release Notes.md")
+Copy-Item -Path "Discord Server.url" -Destination ($modPath  + "/Discord Server.url")
 
-#Copy-Item -Path $modPath -Destination $testDir -Recurse
+for ($i = 0; $i -lt $weiduApps.Length; $i++) {
+	if($i -gt 0){
+		Write-Output "Deleting " ($basePath + "/" + $exePath + $weiduExts[$i-1])
+		Remove-Item -LiteralPath ($basePath + "/" + $exePath + $weiduExts[$i-1])
+	}
+    Copy-Item -Path $weiduApps[$i] -Destination ($basePath + "/" + $exePath + $weiduExts[$i])
+	
+	$7zipPath = "$env:ProgramFiles/7-Zip/7z.exe"
 
-#Remove-Item -LiteralPath $basePath -Force -Recurse
+	if (-not (Test-Path -Path $7zipPath -PathType Leaf)) {
+		$7zipPath = "F:/Program Files/7-Zip/7z.exe"
+	}
 
+	Set-Alias Start-SevenZip $7zipPath
 
-$7zipPath = "$env:ProgramFiles/7-Zip/7z.exe"
+	$archive = $basePath + $weiduArchives[$i] + ".zip"
+	$Source = "./" + $basePath + "/*"
+	$Target = "./" + $archive
 
-if (-not (Test-Path -Path $7zipPath -PathType Leaf)) {
-	$7zipPath = "F:/Program Files/7-Zip/7z.exe"
+	Start-SevenZip a -mx=9 $Target $Source
+
+	Copy-Item -Path $archive -Destination ("\\nas.home.lan\smbuser\Home\Installers\" + $archive)
 }
 
-Set-Alias Start-SevenZip $7zipPath
-
-$Source = "./" + $basePath + "/*"
-$Target = "./" + $archive
-
-Start-SevenZip a -mx=9 $Target $Source
-
 Remove-Item -LiteralPath $basePath -Force -Recurse
-Get-FileHash $archive -Algorithm SHA256 > SHA256.txt
-
-Copy-Item -Path $archive -Destination ("\\192.168.1.88\smbuser\Home\Installers\" + $archive)
